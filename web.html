@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoWorld Showroom</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: url('https://images.unsplash.com/photo-1605559424843-8f5d52fbe3f2') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
+
+    header {
+      text-align: center;
+      background-color: rgba(0,0,0,0.8);
+      padding: 40px 20px 20px;
+    }
+
+    header h1 {
+      color: #ffba08;
+      font-size: 3rem;
+    }
+
+    .filters {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .filters input, .filters select {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .car-count {
+      text-align: center;
+      padding: 10px;
+      font-size: 1.2rem;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .car-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      padding: 30px;
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .car-card {
+      background: white;
+      color: #111;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: 0.3s ease;
+    }
+
+    .car-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .car-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .car-card .info {
+      padding: 15px;
+    }
+
+    .car-card h3 {
+      color: #007bff;
+      margin: 0 0 10px;
+    }
+
+    .car-card ul {
+      list-style: none;
+      padding-left: 0;
+      font-size: 14px;
+    }
+
+    .car-card ul li {
+      margin: 4px 0;
+    }
+
+    .salesperson {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .salesperson span {
+      display: block;
+    }
+
+    .price {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .car-card a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 15px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    footer {
+      text-align: center;
+      background-color: rgba(0,0,0,0.8);
+      padding: 20px;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    /* Modal Popup */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      margin: 0;
+    }
+
+    .modal-content p {
+      margin: 5px 0;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: red;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>AutoWorld Luxury Car Showroom</h1>
+    <p>Drive the Future Today</p>
+  </header>
+
+  <section class="car-count">
+    <span id="carCount">Total Cars Available: 0</span>
+  </section>
+
+  <section class="filters">
+    <input type="text" id="searchBar" placeholder="Search by car name..." />
+    <select id="brandFilter">
+      <option value="">All Brands</option>
+      <option>Audi</option>
+      <option>BMW</option>
+      <option>Honda</option>
+    </select>
+    <select id="priceFilter">
+      <option value="">All Prices</option>
+      <option value="20">Below ₹20 Lakhs</option>
+      <option value="50">Below ₹50 Lakhs</option>
+      <option value="100">Below ₹1 Cr</option>
+    </select>
+  </section>
+
+  <main class="car-section" id="carList">
+    <!-- Car cards inserted here -->
+  </main>
+
+  <footer>
+    &copy; 2025 AutoWorld Showroom | Email: sales@autoworld.com
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal" id="salesModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <h3 id="spName">Salesperson</h3>
+      <p id="spPhone">📞</p>
+      <p id="spEmail">📧</p>
+    </div>
+  </div>
+
+  <script>
+    const cars = [
+      {
+        name: "Audi A6",
+        brand: "Audi",
+        price: 70,
+        image: "https://imgd.aeplcdn.com/1056x594/n/cw/ec/130263/a6-exterior-right-front-three-quarter-4.jpeg",
+        specs: ["Engine: 1984cc", "Auto", "Mileage: 14.2 km/l"],
+        salesperson: { name: "Ravi Sharma", phone: "9876543210", email: "ravi@autoworld.com" }
+      },
+      {
+        name: "BMW 5 Series",
+        brand: "BMW",
+        price: 75,
+        image: "https://imgd.aeplcdn.com/1056x594/n/cw/ec/130161/5-series-exterior-right-front-three-quarter-74.jpeg",
+        specs: ["Engine: 1998cc", "Auto", "Mileage: 14 km/l"],
+        salesperson: { name: "Arjun Verma", phone: "9988776655", email: "arjun@autoworld.com" }
+      },
+      {
+        name: "Honda Civic",
+        brand: "Honda",
+        price: 12,
+        image: "https://stimg.cardekho.com/images/carexteriorimages/930x620/Honda/Civic/6730/1587620346495/front-left-side-47.jpg",
+        specs: ["Engine: 1799cc", "Auto", "Mileage: 18 km/l"],
+        salesperson: { name: "Neha Desai", phone: "9123456789", email: "neha@autoworld.com" }
+      }
+    ];
+
+    const carList = document.getElementById("carList");
+
+    function renderCars(filterText = "", brand = "", maxPrice = "") {
+      carList.innerHTML = "";
+      let count = 0;
+
+      cars.filter(car => {
+        const matchesText = car.name.toLowerCase().includes(filterText.toLowerCase());
+        const matchesBrand = !brand || car.brand === brand;
+        const matchesPrice = !maxPrice || car.price <= parseInt(maxPrice);
+        return matchesText && matchesBrand && matchesPrice;
+      }).forEach(car => {
+        const card = document.createElement("div");
+        card.className = "car-card";
+        card.innerHTML = `
+          <img src="${car.image}" alt="${car.name}">
+          <div class="info">
+            <h3>${car.name}</h3>
+            <ul>
+              ${car.specs.map(spec => `<li>${spec}</li>`).join('')}
+            </ul>
+            <div class="salesperson">
+              <span><b>👤 ${car.salesperson.name}</b></span>
+              <span><a href="#" onclick="showSales('${car.salesperson.name}','${car.salesperson.phone}','${car.salesperson.email}')">View Contact</a></span>
+            </div>
+            <div class="price">₹${car.price} Lakhs</div>
+            <a href="booking.html?car=${encodeURIComponent(car.name)}" onclick="storeCar('${car.name}')">Book Now</a>
+          </div>`;
+        carList.appendChild(card);
+        count++;
+      });
+
+      document.getElementById("carCount").textContent = `Total Cars Available: ${count}`;
+    }
+
+    function storeCar(carName) {
+      localStorage.setItem("selectedCar", carName);
+    }
+
+    function showSales(name, phone, email) {
+      document.getElementById("spName").textContent = name;
+      document.getElementById("spPhone").textContent = "📞 " + phone;
+      document.getElementById("spEmail").textContent = "📧 " + email;
+      document.getElementById("salesModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("salesModal").style.display = "none";
+    }
+
+    document.getElementById("searchBar").addEventListener("input", e => {
+      renderCars(e.target.value, brandFilter.value, priceFilter.value);
+    });
+
+    document.getElementById("brandFilter").addEventListener("change", e => {
+      renderCars(searchBar.value, e.target.value, priceFilter.value);
+    });
+
+    document.getElementById("priceFilter").addEventListener("change", e => {
+      renderCars(searchBar.value, brandFilter.value, e.target.value);
+    });
+
+    renderCars();
+  </script>
+</body>
+</html>
